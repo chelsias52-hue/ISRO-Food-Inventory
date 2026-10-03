@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Edit Food Allocation - ISRO</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    {% include "_navigation.html" %}
+
+    <main>
+        <h1>Edit Food Allocation</h1>
+        <p class="subtitle">Update the mission, assigned astronaut, food, quantity, or date.</p>
+        <div class="form-card">
+            {% if errors %}
+            <div class="form-errors" role="alert">
+                <p>Please correct the following:</p>
+                <ul>
+                    {% for error in errors %}
+                    <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+
+            <form method="POST">
+                <label for="mission_id">Mission</label>
+                <select id="missionSelect" name="mission_id" required>
+                    <option value="">Select Mission</option>
+                    {% for mission in missions %}
+                    <option value="{{ mission[0] }}"
+                        {% if form_data.get('mission_id') == mission[0]|string %}selected{% endif %}>
+                        {{ mission[1] }}
+                    </option>
+                    {% endfor %}
+                </select>
+
+                <label for="food_id">Food Item</label>
+                <select id="food_id" name="food_id" required>
+                    <option value="">Select Food</option>
+                    {% for food in foods %}
+                    <option value="{{ food[0] }}"
+                        {% if form_data.get('food_id') == food[0]|string %}selected{% endif %}>
+                        {{ food[1] }}
+                    </option>
+                    {% endfor %}
+                </select>
+
+                <label for="astronaut_id">Astronaut</label>
+                <select id="astronautSelect" name="astronaut_id" required disabled>
+                    <option value="">Select an astronaut assigned to the mission</option>
+                    {% for astronaut in astronauts %}
+                    <option value="{{ astronaut[0] }}"
+                            data-mission-id="{{ astronaut[2] }}"
+                        {% if form_data.get('astronaut_id') == astronaut[0]|string %}selected{% endif %}>
+                        {{ astronaut[1] }} — {{ astronaut[3] }}
+                    </option>
+                    {% endfor %}
+                </select>
+
+                <label for="quantity">Quantity</label>
+                <input id="quantity" type="number" name="quantity" min="1"
+                       max="2147483647" step="1"
+                       value="{{ form_data.get('quantity', '') }}" required>
+
+                <label for="allocation_date">Allocation Date</label>
+                <input id="allocation_date" type="date" name="allocation_date"
+                       value="{{ form_data.get('allocation_date', '') }}" required>
+
+                <button type="submit">Update Allocation</button>
+            </form>
+        </div>
+    </main>
+    <script src="{{ url_for('static', filename='js/script.js') }}" defer></script>
+</body>
+</html>

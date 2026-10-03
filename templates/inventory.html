@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+{% block title %}Inventory - ISRO{% endblock %}
+{% block content %}
+        <h1>Inventory Management</h1>
+        <section class="summary-cards" aria-label="Inventory summary">
+            <article class="summary-card">
+                <h3>Total Items</h3>
+                <p>{{ total_items }}</p>
+            </article>
+            <article class="summary-card">
+                <h3>Total Quantity</h3>
+                <p>{{ total_quantity }}</p>
+            </article>
+            <article class="summary-card">
+                <h3>Low Stock</h3>
+                <p>{{ low_stock }}</p>
+            </article>
+            <article class="summary-card">
+                <h3>Expired</h3>
+                <p>{{ expired_items }}</p>
+            </article>
+            <article class="summary-card">
+                <h3>Expiring Soon</h3>
+                <p>{{ expiring_items }}</p>
+            </article>
+        </section>
+        <label class="visually-hidden" for="inventorySearch">Search inventory</label>
+        <input
+            type="search"
+            id="inventorySearch"
+            placeholder="Search inventory..."
+            class="search-box"
+            autocomplete="off"
+        >
+        <label class="visually-hidden" for="stockFilter">Filter inventory</label>
+        <select id="stockFilter" class="filter-select">
+            <option value="all">All</option>
+            <option value="low">Low Stock</option>
+            <option value="available">Available</option>
+            <option value="safe">Safe</option>
+            <option value="expired">Expired</option>
+            <option value="expiring">Expiring Soon</option>
+        </select>
+        <p class="subtitle">Monitor food stock, storage locations and expiry dates.</p>
+        {% if updated %}
+        <p class="success-message" role="status">Inventory updated successfully.</p>
+        {% endif %}
+
+        <div class="inventory-table">
+            <table>
+                <thead>
+                    <tr>
+                        <th scope="col">Food Item</th>
+                        <th scope="col">Quantity</th>
+                        <th scope="col">Reorder Level</th>
+                        <th scope="col">Stock Status</th>
+                        <th scope="col">Storage Location</th>
+                        <th scope="col">Expiry Date</th>
+                        <th scope="col">Expiry Status</th>
+                        {% if session.get("user_role") in ["Admin", "Manager"] %}
+                        <th scope="col">Action</th>
+                        {% endif %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in inventory_data %}
+                        <tr
+                            class="inventory-row"
+                            data-food="{{ item[1] | lower }}"
+                            data-stock="{% if item[2] <= item[3] %}low{% else %}available{% endif %}"
+                            data-expiry="{% if item[5] is none %}unknown{% elif item[5] < today %}expired{% elif item[5] <= warning_date %}expiring{% else %}safe{% endif %}"
+                        >
+                        <td>{{ item[1] }}</td>
+                        <td>{{ item[2] }}</td>
+                        <td>{{ item[3] }}</td>
+                        <td>
+                            {% if item[2] <= item[3] %}
+                            <span class="status low">LOW STOCK</span>
+                            {% else %}
+                            <span class="status available">AVAILABLE</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ item[4] or "—" }}</td>
+                        <td>{{ item[5].strftime("%Y-%m-%d") if item[5] else "—" }}</td>
+                        <td>
+                            {% if item[5] is none %}
+                            <span class="status">NOT SET</span>
+                            {% elif item[5] < today %}
+                            <span class="status low">EXPIRED</span>
+                            {% elif item[5] <= warning_date %}
+                            <span class="status warning">EXPIRING SOON</span>
+                            {% else %}
+                            <span class="status available">SAFE</span>
+                            {% endif %}
+                        </td>
+                        {% if session.get("user_role") in ["Admin", "Manager"] %}
+                        <td>
+                            {% if session.get("user_role") in ["Admin", "Manager"] %}
+                            <a href="{{ url_for('edit_inventory', food_id=item[0]) }}"
+                               class="edit-button">Edit</a>
+                            {% endif %}
+                        </td>
+                        {% endif %}
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="{% if session.get('user_role') in ['Admin', 'Manager'] %}8{% else %}7{% endif %}" class="empty-state">No inventory records found.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+{% endblock %}
+{% block scripts %}<script src="{{ url_for('static', filename='js/script.js') }}" defer></script>{% endblock %}

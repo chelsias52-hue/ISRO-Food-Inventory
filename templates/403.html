@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Access Denied - ISRO Food Inventory</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    {% if session.get("user_id") %}
+    {% include "_navigation.html" %}
+    {% endif %}
+    <main>
+        <div class="form-card">
+            <h1>403 - Access Denied</h1>
+            <p>You do not have permission to perform this action.</p>
+            <a class="button-link" href="{{ url_for('home') }}">Back</a>
+        </div>
+    </main>
+</body>
+</html>

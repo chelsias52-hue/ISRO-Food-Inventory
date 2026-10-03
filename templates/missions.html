@@ -1,0 +1,127 @@
+{% extends "base.html" %}
+{% block title %}Missions - ISRO{% endblock %}
+{% block content %}
+        <h1>Mission Management</h1>
+        <section class="summary-cards" aria-label="Mission summary">
+            <article class="summary-card">
+                <h3>Total Missions</h3>
+                <p>{{ total_missions }}</p>
+            </article>
+            <article class="summary-card">
+                <h3>Active Missions</h3>
+                <p>{{ active_missions }}</p>
+            </article>
+            <article class="summary-card">
+                <h3>Total Crew</h3>
+                <p>{{ total_crew }}</p>
+            </article>
+            <article class="summary-card">
+                <h3>Planned Missions</h3>
+                <p>{{ planned_missions }}</p>
+            </article>
+            <article class="summary-card">
+                <h3>Completed Missions</h3>
+                <p>{{ completed_missions }}</p>
+            </article>
+        </section>
+        <label class="visually-hidden" for="missionSearch">Search missions</label>
+        <input
+            type="search"
+            id="missionSearch"
+            placeholder="Search missions..."
+            class="search-box"
+            autocomplete="off"
+        >
+        <label class="visually-hidden" for="missionFilter">Filter missions by status</label>
+        <select id="missionFilter" class="filter-select">
+            <option value="all">All Missions</option>
+            <option value="planned">Planned</option>
+            <option value="active">Active</option>
+            <option value="completed">Completed</option>
+            <option value="cancelled">Cancelled</option>
+        </select>
+        <label class="visually-hidden" for="missionTypeFilter">Filter missions by type</label>
+        <select id="missionTypeFilter" class="filter-select">
+            <option value="all">All Mission Types</option>
+            {% for mission_type in mission_types %}
+            <option value="{{ mission_type | lower }}">{{ mission_type }}</option>
+            {% endfor %}
+        </select>
+        <p class="subtitle">View mission schedules and crew requirements.</p>
+        {% if added %}
+        <p class="success-message" role="status">Mission added successfully.</p>
+        {% endif %}
+        {% if updated %}
+        <p class="success-message" role="status">Mission updated successfully.</p>
+        {% endif %}
+        {% if deleted %}
+        <p class="success-message" role="status">Mission deleted successfully.</p>
+        {% elif delete_error == "referenced" %}
+        <div class="form-errors" role="alert">
+            <p>This mission cannot be deleted because it has related records.</p>
+            <p>Astronauts assigned: {{ delete_astronaut_count }}</p>
+            <p>Food allocations: {{ delete_allocation_count }}</p>
+            <p>Delete the related records first.</p>
+        </div>
+        {% elif delete_error == "not_found" %}
+        <p class="form-errors" role="alert">That mission was not found.</p>
+        {% elif delete_error == "failed" %}
+        <p class="form-errors" role="alert">The mission could not be deleted. Check the server log for details.</p>
+        {% endif %}
+        {% if session.get("user_role") in ["Admin", "Manager"] %}
+        <p><a class="button-link" href="/add-mission">+ Add Mission</a></p>
+        {% endif %}
+
+        <div class="inventory-table">
+            <table>
+                <thead>
+                    <tr>
+                        <th scope="col">Mission</th>
+                        <th scope="col">Type</th>
+                        <th scope="col">Launch Date</th>
+                        <th scope="col">Duration</th>
+                        <th scope="col">Crew Size</th>
+                        <th scope="col">Status</th>
+                        {% if session.get("user_role") in ["Admin", "Manager"] %}
+                        <th scope="col">Action</th>
+                        {% endif %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for mission in missions_data %}
+                    <tr
+                        class="mission-row"
+                        data-name="{{ mission[1] | lower }}"
+                        data-status="{{ mission[6] | lower }}"
+                        data-type="{{ (mission[2] or '') | lower }}"
+                    >
+                        <td><strong>{{ mission[1] }}</strong></td>
+                        <td>{{ mission[2] or "—" }}</td>
+                        <td>{{ mission[3].strftime("%Y-%m-%d") if mission[3] else "—" }}</td>
+                        <td>{{ mission[4] if mission[4] is not none else "—" }}{% if mission[4] is not none %} days{% endif %}</td>
+                        <td>{{ mission[5] if mission[5] is not none else "—" }}</td>
+                        <td>{{ mission[6] or "—" }}</td>
+                        {% if session.get("user_role") in ["Admin", "Manager"] %}
+                        <td>
+                            {% if session.get("user_role") in ["Admin", "Manager"] %}
+                            <a href="{{ url_for('edit_mission', mission_id=mission[0]) }}"
+                               class="edit-button">Edit</a>
+                            <form method="POST"
+                                  action="{{ url_for('delete_mission', mission_id=mission[0]) }}"
+                                  onsubmit="return confirm('Are you sure you want to delete this mission?');">
+                                <button type="submit" class="delete-button">Delete</button>
+                            </form>
+                            {% endif %}
+                        </td>
+                        {% endif %}
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="{% if session.get('user_role') in ['Admin', 'Manager'] %}7{% else %}6{% endif %}" class="empty-state">No missions have been added yet.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+{% endblock %}
+{% block scripts %}<script src="{{ url_for('static', filename='js/script.js') }}" defer></script>{% endblock %}

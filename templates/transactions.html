@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+{% block title %}Stock Transactions - ISRO{% endblock %}
+{% block content %}
+        <h1>Stock Transactions</h1>
+        <section class="summary-cards" aria-label="Transaction summary">
+            <article class="summary-card">
+                <h3>Total Transactions</h3>
+                <p>{{ total_transactions }}</p>
+            </article>
+            <article class="summary-card">
+                <h3>Total Stock In</h3>
+                <p>{{ total_in }}</p>
+            </article>
+            <article class="summary-card">
+                <h3>Total OUT / Wastage</h3>
+                <p>{{ total_out }}</p>
+            </article>
+        </section>
+        <label class="visually-hidden" for="transactionSearch">Search transactions by food</label>
+        <input
+            type="search"
+            id="transactionSearch"
+            placeholder="Search food..."
+            class="search-box"
+            autocomplete="off"
+        >
+        <label class="visually-hidden" for="transactionFilter">Filter transaction type</label>
+        <select id="transactionFilter" class="filter-select">
+            <option value="all">All Transactions</option>
+            <option value="in">IN</option>
+            <option value="out">OUT</option>
+            <option value="return">RETURN</option>
+            <option value="wastage">WASTAGE</option>
+        </select>
+        <p class="subtitle">Track all food inventory movements.</p>
+        {% if added %}
+        <p class="success-message" role="status">Stock transaction recorded successfully.</p>
+        {% endif %}
+        <p><a href="/add-transaction" class="button-link">+ Add Transaction</a></p>
+
+        <div class="inventory-table">
+            <table>
+                <thead>
+                    <tr>
+                        <th scope="col">ID</th>
+                        <th scope="col">Food Item</th>
+                        <th scope="col">Transaction Type</th>
+                        <th scope="col">Quantity</th>
+                        <th scope="col">Date</th>
+                        <th scope="col">Remarks</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for transaction in transaction_data %}
+                    <tr
+                        class="transaction-row"
+                        data-food="{{ transaction[1] | lower }}"
+                        data-type="{{ transaction[2] | lower }}"
+                    >
+                        <td>{{ transaction[0] }}</td>
+                        <td><strong>{{ transaction[1] }}</strong></td>
+                        <td><span class="status available">{{ transaction[2] }}</span></td>
+                        <td>{{ transaction[3] }}</td>
+                        <td>{{ transaction[4].strftime("%Y-%m-%d %H:%M") if transaction[4] else "—" }}</td>
+                        <td>{{ transaction[5] or "—" }}</td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="6" class="empty-state">No stock transactions have been recorded.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+{% endblock %}
+{% block scripts %}<script src="{{ url_for('static', filename='js/script.js') }}" defer></script>{% endblock %}

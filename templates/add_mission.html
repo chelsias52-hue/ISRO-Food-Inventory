@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Add Mission - ISRO</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    {% include "_navigation.html" %}
+
+    <main>
+        <h1>Add Mission</h1>
+        <p class="subtitle">Create a mission schedule and define its crew requirements.</p>
+        <div class="form-card">
+            {% if errors %}
+            <div class="form-errors" role="alert">
+                <p>Please correct the following:</p>
+                <ul>
+                    {% for error in errors %}
+                    <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+
+            <form method="POST">
+                <label for="mission_name">Mission Name</label>
+                <input id="mission_name" type="text" name="mission_name" maxlength="150"
+                       value="{{ form_data.get('mission_name', '') }}" required>
+
+                <label for="mission_type">Mission Type</label>
+                <input id="mission_type" type="text" name="mission_type" maxlength="100"
+                       value="{{ form_data.get('mission_type', '') }}"
+                       placeholder="Human Spaceflight" required>
+
+                <label for="launch_date">Launch Date</label>
+                <input id="launch_date" type="date" name="launch_date"
+                       value="{{ form_data.get('launch_date', '') }}" required>
+
+                <label for="duration_days">Duration (Days)</label>
+                <input id="duration_days" type="number" name="duration_days" min="1"
+                       max="2147483647" step="1"
+                       value="{{ form_data.get('duration_days', '') }}" required>
+
+                <label for="crew_size">Crew Size</label>
+                <input id="crew_size" type="number" name="crew_size" min="1"
+                       max="2147483647" step="1"
+                       value="{{ form_data.get('crew_size', '') }}" required>
+
+                <label for="status">Status</label>
+                <select id="status" name="status" required>
+                    {% for status in ["Planned", "Active", "Completed", "Cancelled"] %}
+                    <option value="{{ status }}"
+                        {% if form_data.get('status', 'Planned') == status %}selected{% endif %}>
+                        {{ status }}
+                    </option>
+                    {% endfor %}
+                </select>
+
+                <button type="submit">Add Mission</button>
+            </form>
+        </div>
+    </main>
+</body>
+</html>

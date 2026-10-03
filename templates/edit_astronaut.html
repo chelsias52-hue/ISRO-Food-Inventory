@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Edit Astronaut - ISRO</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    {% include "_navigation.html" %}
+
+    <main>
+        <h1>Edit Astronaut</h1>
+        <p class="subtitle">Update the crew member's mission assignment and role.</p>
+        <div class="form-card">
+            {% if errors %}
+            <div class="form-errors" role="alert">
+                <p>Please correct the following:</p>
+                <ul>
+                    {% for error in errors %}
+                    <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+
+            {% if not missions %}
+            <p class="empty-state">There are no missions available for assignment.</p>
+            {% endif %}
+
+            <form method="POST">
+                <label for="astronaut_name">Astronaut Name</label>
+                <input id="astronaut_name" type="text" name="astronaut_name"
+                       maxlength="100"
+                       value="{{ form_data.get('astronaut_name', '') }}" required>
+
+                <label for="mission_id">Mission</label>
+                <select id="mission_id" name="mission_id" required>
+                    <option value="">Select Mission</option>
+                    {% for mission in missions %}
+                    <option value="{{ mission[0] }}"
+                        {% if form_data.get('mission_id') == mission[0]|string %}selected{% endif %}>
+                        {{ mission[1] }}
+                    </option>
+                    {% endfor %}
+                </select>
+
+                <label for="role">Role</label>
+                <input id="role" type="text" name="role" maxlength="100"
+                       value="{{ form_data.get('role', '') }}" required>
+
+                <button type="submit" {% if not missions %}disabled{% endif %}>
+                    Update Astronaut
+                </button>
+            </form>
+        </div>
+    </main>
+</body>
+</html>

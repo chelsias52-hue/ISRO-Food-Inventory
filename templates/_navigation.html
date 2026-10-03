@@ -1,0 +1,27 @@
+{% with messages = get_flashed_messages(with_categories=true) %}
+{% if messages %}
+<section class="flash-messages" aria-label="Notifications" aria-live="polite">
+    {% for category, message in messages %}
+    <p class="flash-message flash-{{ category }}">{{ message }}</p>
+    {% endfor %}
+</section>
+{% endif %}
+{% endwith %}
+<nav>
+    <h2>ISRO Food Inventory</h2>
+    <div>
+        <a href="/" {% if request.path == "/" %}aria-current="page"{% endif %}>Dashboard</a>
+        <a href="/food" {% if request.path == "/food" or request.path == "/add-food" or request.path.startswith("/edit-food/") %}aria-current="page"{% endif %}>Food</a>
+        <a href="/inventory" {% if request.path == "/inventory" or request.path.startswith("/edit-inventory/") %}aria-current="page"{% endif %}>Inventory</a>
+        <a href="/missions" {% if request.path == "/missions" or request.path == "/add-mission" or request.path.startswith("/edit-mission/") %}aria-current="page"{% endif %}>Missions</a>
+        <a href="/astronauts" {% if request.path == "/astronauts" or request.path == "/add-astronaut" or request.path.startswith("/edit-astronaut/") %}aria-current="page"{% endif %}>Astronauts</a>
+        <a href="/allocations" {% if request.path == "/allocations" or request.path == "/add-allocation" or request.path.startswith("/edit-allocation/") %}aria-current="page"{% endif %}>Allocations</a>
+        <a href="/transactions" {% if request.path == "/transactions" or request.path == "/add-transaction" %}aria-current="page"{% endif %}>Transactions</a>
+        {% if session.get("user_id") %}
+        <span>{{ session.get("user_name") }} ({{ session.get("user_role") }})</span>
+        <a href="{{ url_for('logout') }}">Logout</a>
+        {% else %}
+        <a href="{{ url_for('login') }}">Login</a>
+        {% endif %}
+    </div>
+</nav>

@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% block title %}Food Items - ISRO{% endblock %}
+{% block content %}
+        <h1>Food Items</h1>
+        <label class="visually-hidden" for="foodSearch">Search food items</label>
+        <input
+            type="search"
+            id="foodSearch"
+            class="search-box"
+            placeholder="Search food items..."
+            autocomplete="off"
+        >
+        <label class="visually-hidden" for="foodCategoryFilter">Filter food by category</label>
+        <select id="foodCategoryFilter" class="filter-select">
+            <option value="all">All Categories</option>
+            {% for category in categories %}
+            <option value="{{ category | lower }}">{{ category }}</option>
+            {% endfor %}
+        </select>
+        <label class="visually-hidden" for="foodSupplierFilter">Filter food by supplier</label>
+        <select id="foodSupplierFilter" class="filter-select">
+            <option value="all">All Suppliers</option>
+            {% for supplier in suppliers %}
+            <option value="{{ supplier | lower }}">{{ supplier }}</option>
+            {% endfor %}
+        </select>
+        {% if added %}
+        <p class="success-message" role="status">Food item added successfully.</p>
+        {% endif %}
+        {% if updated %}
+        <p class="success-message" role="status">Food item updated successfully.</p>
+        {% endif %}
+        {% if deleted %}
+        <p class="success-message" role="status">Food item deleted successfully.</p>
+        {% elif delete_error == "referenced" %}
+        <div class="form-errors" role="alert">
+            <p>This food item has related records and cannot be deleted.</p>
+            <p>Inventory records: {{ delete_inventory_count }}</p>
+            <p>Food allocations: {{ delete_allocation_count }}</p>
+            <p>Stock transactions: {{ delete_transaction_count }}</p>
+            <p>Remove the related records first.</p>
+        </div>
+        {% elif delete_error == "not_found" %}
+        <p class="form-errors" role="alert">That food item was not found.</p>
+        {% elif delete_error == "failed" %}
+        <p class="form-errors" role="alert">The food item could not be deleted. Check the server log for details.</p>
+        {% endif %}
+        {% if session.get("user_role") in ["Admin", "Manager"] %}
+        <p><a class="button-link" href="/add-food">+ Add Food Item</a></p>
+        {% endif %}
+        {% if foods %}
+        <section class="food-grid" aria-label="Food items">
+            {% for food in foods %}
+            <article class="food-card"
+                     data-category="{{ food[7] | lower }}"
+                     data-supplier="{{ food[8] | lower }}">
+                <h2>{{ food[1] }}</h2>
+                <p><strong>Category:</strong> {{ food[7] }}</p>
+                <p><strong>Supplier:</strong> {{ food[8] }}</p>
+                <p><strong>Expiry:</strong> {{ food[9].strftime("%Y-%m-%d") if food[9] else "—" }}</p>
+                <p><strong>Calories:</strong> {{ food[2] if food[2] is not none else "—" }} kcal</p>
+                <p><strong>Protein:</strong> {{ food[3] if food[3] is not none else "—" }} g</p>
+                <p><strong>Carbs:</strong> {{ food[4] if food[4] is not none else "—" }} g</p>
+                <p><strong>Fat:</strong> {{ food[5] if food[5] is not none else "—" }} g</p>
+                <p><strong>Unit:</strong> {{ food[6] or "—" }}</p>
+                {% if session.get("user_role") in ["Admin", "Manager"] %}
+                <a href="{{ url_for('edit_food', food_id=food[0]) }}" class="edit-button">Edit</a>
+                {% endif %}
+                {% if session.get("user_role") == "Admin" %}
+                <form method="POST" action="{{ url_for('delete_food', food_id=food[0]) }}"
+                      onsubmit="return confirm('Are you sure you want to delete this food item?');">
+                    <button class="delete-button" type="submit">Delete</button>
+                </form>
+                {% endif %}
+            </article>
+            {% endfor %}
+        </section>
+        {% else %}
+        <p class="empty-state">No food items have been added yet.</p>
+        {% endif %}
+{% endblock %}
+{% block scripts %}<script src="{{ url_for('static', filename='js/script.js') }}" defer></script>{% endblock %}

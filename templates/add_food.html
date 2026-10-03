@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Add Food - ISRO</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    {% include "_navigation.html" %}
+
+    <main>
+        <h1>Add New Food Item</h1>
+        <p class="subtitle">Add a food item and start its inventory at zero stock.</p>
+
+        <div class="form-card">
+            {% if errors %}
+            <div class="form-errors" role="alert">
+                <p>Please correct the following:</p>
+                <ul>
+                    {% for error in errors %}
+                    <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+
+            <form method="POST">
+                <label for="food_name">Food Name</label>
+                <input id="food_name" type="text" name="food_name" maxlength="150"
+                       value="{{ form_data.get('food_name', '') }}" required>
+
+                <label for="category_id">Category</label>
+                <select id="category_id" name="category_id" required>
+                    <option value="">Select a category</option>
+                    {% for category in categories %}
+                    <option value="{{ category[0] }}"
+                        {% if form_data.get('category_id') == category[0]|string %}selected{% endif %}>
+                        {{ category[1] }}
+                    </option>
+                    {% endfor %}
+                </select>
+
+                <label for="supplier_id">Supplier</label>
+                <select id="supplier_id" name="supplier_id" required>
+                    <option value="">Select a supplier</option>
+                    {% for supplier in suppliers %}
+                    <option value="{{ supplier[0] }}"
+                        {% if form_data.get('supplier_id') == supplier[0]|string %}selected{% endif %}>
+                        {{ supplier[1] }}
+                    </option>
+                    {% endfor %}
+                </select>
+
+                <label for="calories">Calories</label>
+                <input id="calories" type="number" name="calories" min="0" max="999999.99"
+                       step="0.01" value="{{ form_data.get('calories', '') }}" required>
+
+                <label for="protein">Protein (g)</label>
+                <input id="protein" type="number" name="protein" min="0" max="999999.99"
+                       step="0.01" value="{{ form_data.get('protein', '') }}" required>
+
+                <label for="carbs">Carbs (g)</label>
+                <input id="carbs" type="number" name="carbs" min="0" max="999999.99"
+                       step="0.01" value="{{ form_data.get('carbs', '') }}" required>
+
+                <label for="fat">Fat (g)</label>
+                <input id="fat" type="number" name="fat" min="0" max="999999.99"
+                       step="0.01" value="{{ form_data.get('fat', '') }}" required>
+
+                <label for="unit">Unit</label>
+                <input id="unit" type="text" name="unit" maxlength="50"
+                       value="{{ form_data.get('unit', '') }}" placeholder="Pack" required>
+
+                <label for="expiry_date">Expiry Date</label>
+                <input id="expiry_date" type="date" name="expiry_date"
+                       value="{{ form_data.get('expiry_date', '') }}" required>
+
+                <button type="submit">Add Food Item</button>
+            </form>
+        </div>
+    </main>
+</body>
+</html>

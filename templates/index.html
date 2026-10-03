@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+{% block title %}Dashboard - ISRO Food Inventory{% endblock %}
+{% block content %}
+        <h1>Dashboard</h1>
+        <p class="subtitle">Space Food Inventory Management System</p>
+
+        <section class="cards" aria-label="Inventory summary">
+            <a class="dashboard-card" href="/food">
+                <h3>Total Food Items</h3>
+                <p>{{ total_food }}</p>
+            </a>
+            <a class="dashboard-card" href="/inventory">
+                <h3>Low Stock Items</h3>
+                <p>{{ low_stock }}</p>
+            </a>
+            <a class="dashboard-card" href="/inventory">
+                <h3>Expired Food</h3>
+                <p>{{ expired_food }}</p>
+            </a>
+            <a class="dashboard-card" href="/missions">
+                <h3>Active Missions</h3>
+                <p>{{ active_missions }}</p>
+            </a>
+            <a class="dashboard-card" href="/inventory">
+                <h3>Total Inventory Quantity</h3>
+                <p>{{ total_inventory_quantity }}</p>
+            </a>
+            <a class="dashboard-card" href="/inventory">
+                <h3>Expiring Soon</h3>
+                <p>{{ expiring_soon }}</p>
+            </a>
+            <a class="dashboard-card" href="/astronauts">
+                <h3>Total Astronauts</h3>
+                <p>{{ total_astronauts }}</p>
+            </a>
+            <a class="dashboard-card" href="/allocations">
+                <h3>Total Allocations</h3>
+                <p>{{ total_allocations }}</p>
+            </a>
+        </section>
+
+        <section class="dashboard-panels">
+            <div class="inventory-table">
+                <h2>Recent Stock Transactions</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th scope="col">Food</th>
+                            <th scope="col">Type</th>
+                            <th scope="col">Quantity</th>
+                            <th scope="col">Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for transaction in recent_transactions %}
+                        <tr>
+                            <td>{{ transaction[0] }}</td>
+                            <td>{{ transaction[1] }}</td>
+                            <td>{{ transaction[2] }}</td>
+                            <td>{{ transaction[3].strftime("%Y-%m-%d %H:%M") if transaction[3] else "—" }}</td>
+                        </tr>
+                        {% else %}
+                        <tr><td colspan="4" class="empty-state">No transactions yet.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <div class="inventory-table">
+                <h2>Upcoming Expiry</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th scope="col">Food</th>
+                            <th scope="col">Expiry Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in upcoming_expiry %}
+                        <tr>
+                            <td>{{ item[0] }}</td>
+                            <td>{{ item[1].strftime("%Y-%m-%d") }}</td>
+                        </tr>
+                        {% else %}
+                        <tr><td colspan="2" class="empty-state">No items expiring within 30 days.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </section>
+{% endblock %}
